@@ -87,11 +87,40 @@ function App() {
             </p>
           )}
           <AceEditor
-            width="100%"
             mode={getFileMode({ selectedFile })}
+            theme="monokai"              // or 'github', 'dracula', etc.
             value={code}
             onChange={(e) => setCode(e)}
+            name="code-editor"
+            width="100%"
+            height="400px"              // adjustable
+            fontSize={14}
+            showPrintMargin={false}
+            showGutter={true}
+            highlightActiveLine={true}
+            setOptions={{
+              enableBasicAutocompletion: true,
+              enableLiveAutocompletion: true,
+              enableSnippets: true,
+              showLineNumbers: true,
+              tabSize: 2,
+              useWorker: false, // Disable web worker to avoid some warnings
+            }}
           />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3>Editing: {selectedFile}</h3>
+            <span style={{
+              backgroundColor: '#eee',
+              padding: '4px 10px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}>
+              {getFileMode({ selectedFile })}
+            </span>
+          </div>
+
+
         </div>
       </div>
       <div className="terminal-container">

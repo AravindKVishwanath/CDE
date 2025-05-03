@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
 
         // Write the updated content to the specified file inside the user folder
         try {
-            await fs.promises.writeFile(path.join(userFolder, filePath), content);
+            await fs.writeFile(path.join(userFolder, filePath), content);
             console.log(`File updated: ${filePath}`);
             socket.emit('file:refresh');  // Notify frontend to refresh file tree
         } catch (error) {
