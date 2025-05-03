@@ -66,6 +66,17 @@ function App() {
       socket.off("file:refresh", getFileTree);
     };
   }, []);
+  const handleSave = () => {
+    if (!selectedFile) return;
+  
+    socket.emit('file:change', {
+      path: selectedFile,
+      content: code,
+    });
+  
+    setSelectedFileContent(code);
+  };
+  
 
   return (
     <div className="playground-container">
@@ -81,10 +92,27 @@ function App() {
         </div>
         <div className="editor">
           {selectedFile && (
-            <p>
-              {selectedFile.replaceAll("/", " > ")}{" "}
-              {isSaved ? "Saved" : "Unsaved"}
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p>
+                {selectedFile.replaceAll("/", " > ")} —{" "}
+                <span style={{ color: isSaved ? "green" : "red" }}>
+                  {isSaved ? "Saved" : "Unsaved"}
+                </span>
+              </p>
+              <button
+                onClick={handleSave}
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                }}
+              >
+                Save
+              </button>
+            </div>
           )}
           <AceEditor
             mode={getFileMode({ selectedFile })}
@@ -107,22 +135,21 @@ function App() {
               useWorker: false, // Disable web worker to avoid some warnings
             }}
           />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3>Editing: {selectedFile}</h3>
-            <span style={{
-              backgroundColor: '#eee',
-              padding: '4px 10px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: 'bold'
-            }}>
-              {getFileMode({ selectedFile })}
-            </span>
-          </div>
-
-
         </div>
+        
       </div>
+      <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
+          <h3>Editing: {selectedFile}</h3>
+          <span style={{
+            backgroundColor: "grey",
+            padding: '4px 10px',
+            borderRadius: '8px',
+            fontSize: '18px',
+            fontWeight: 'bold'
+          }}>
+            {getFileMode({ selectedFile })}
+          </span>
+        </div>
       <div className="terminal-container">
         <Terminal />
       </div>

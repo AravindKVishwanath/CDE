@@ -7,7 +7,7 @@ const app = express()
 app.get('/', (req, res) => res.json({ msg: 'hey from my own server' }));
 
 
-app.listen(PORT, () => console.log(`Serverrrrrrrr Strted on port ${PORT}`))
+app.listen(PORT, () => console.log(`Server Strted on port ${PORT}`))
 
 
 
