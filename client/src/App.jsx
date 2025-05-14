@@ -4,11 +4,10 @@ import Terminal from "./components/terminal";
 import FileTree from "./components/tree";
 import socket from "./socket";
 import AceEditor from "react-ace";
-
 import { getFileMode } from "./utils/getFileMode";
 
 import "ace-builds/src-noconflict/mode-javascript";
-import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/theme-dracula";
 import "ace-builds/src-noconflict/ext-language_tools";
 
 function App() {
@@ -66,22 +65,23 @@ function App() {
       socket.off("file:refresh", getFileTree);
     };
   }, []);
+
   const handleSave = () => {
     if (!selectedFile) return;
-  
     socket.emit('file:change', {
       path: selectedFile,
       content: code,
     });
-  
     setSelectedFileContent(code);
   };
-  
 
   return (
-    <div className="playground-container">
-      <div className="editor-container">
-        <div className="files">
+    <div className="app-container">
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h2>Explorer</h2>
+        </div>
+        <div className="file-tree-container">
           <FileTree
             onSelect={(path) => {
               setSelectedFileContent("");
@@ -90,38 +90,55 @@ function App() {
             tree={fileTree}
           />
         </div>
-        <div className="editor">
+      </div>
+
+      <div className="main-content">
+        <div className="editor-header">
           {selectedFile && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p>
-                {selectedFile.replaceAll("/", " > ")} —{" "}
-                <span style={{ color: isSaved ? "green" : "red" }}>
-                  {isSaved ? "Saved" : "Unsaved"}
+            <div className="file-info">
+              <div className="file-path">
+                {selectedFile.split('/').map((part, i) => (
+                  <span key={i}>
+                    {part}
+                    {i < selectedFile.split('/').length - 1 && (
+                      <span className="path-separator">/</span>
+                    )}
+                  </span>
+                ))}
+              </div>
+              <div className="file-status">
+                <span className={`status-badge ${isSaved ? 'saved' : 'unsaved'}`}>
+                  {isSaved ? 'Saved' : 'Unsaved'}
                 </span>
-              </p>
-              <button
-                onClick={handleSave}
-                style={{
-                  padding: '6px 12px',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: 'pointer',
-                }}
-              >
-                Save
-              </button>
+                <span className="language-badge">
+                  {getFileMode({ selectedFile })}
+                </span>
+                <button
+                  onClick={handleSave}
+                  className="save-button"
+                  disabled={isSaved}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                  </svg>
+                  Save
+                </button>
+              </div>
             </div>
           )}
+        </div>
+
+        <div className="editor-wrapper">
           <AceEditor
             mode={getFileMode({ selectedFile })}
-            theme="monokai"              // or 'github', 'dracula', etc.
+            theme="dracula"
             value={code}
             onChange={(e) => setCode(e)}
             name="code-editor"
             width="100%"
-            height="400px"              // adjustable
+            height="calc(100vh - 180px)"
             fontSize={14}
             showPrintMargin={false}
             showGutter={true}
@@ -132,26 +149,14 @@ function App() {
               enableSnippets: true,
               showLineNumbers: true,
               tabSize: 2,
-              useWorker: false, // Disable web worker to avoid some warnings
+              useWorker: false,
             }}
           />
         </div>
-        
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
-          <h3>Editing: {selectedFile}</h3>
-          <span style={{
-            backgroundColor: "grey",
-            padding: '4px 10px',
-            borderRadius: '8px',
-            fontSize: '18px',
-            fontWeight: 'bold'
-          }}>
-            {getFileMode({ selectedFile })}
-          </span>
+
+        <div className="terminal-wrapper">
+          <Terminal />
         </div>
-      <div className="terminal-container">
-        <Terminal />
       </div>
     </div>
   );
